@@ -10,13 +10,16 @@ from sklearn.preprocessing import Normalizer
 from sklearn.pipeline import make_pipeline
 
 from nltk.corpus import wordnet
+from difflib import get_close_matches
 
 
 class ImprovedInformationRetrieval():
 
-    def __init__(self,
-                 method="baseline",
-                 n_components=100):
+    def __init__(
+        self,
+        method="baseline",
+        n_components=100
+    ):
 
         self.method = method
         self.n_components = n_components
@@ -28,6 +31,8 @@ class ImprovedInformationRetrieval():
         self.doc_vectors = None
 
         self.lsa_pipeline = None
+
+        self.flattened_docs = None
 
 
     ########################################################
@@ -57,6 +62,55 @@ class ImprovedInformationRetrieval():
 
 
     ########################################################
+    # SPELL CORRECTION
+    ########################################################
+
+    def correct_query(self, query_tokens):
+
+        corrected = []
+
+        for word in query_tokens:
+
+            if word in self.vocab:
+                corrected.append(word)
+
+            else:
+
+                matches = get_close_matches(
+                    word,
+                    self.vocab,
+                    n=1,
+                    cutoff=0.8
+                )
+
+                if matches:
+                    corrected.append(matches[0])
+                else:
+                    corrected.append(word)
+
+        return corrected
+
+
+    ########################################################
+    # BIGRAMS
+    ########################################################
+
+    def add_bigrams(self, tokens):
+
+        bigrams = []
+
+        for i in range(len(tokens) - 1):
+
+            bigram = (
+                tokens[i] + "_" + tokens[i + 1]
+            )
+
+            bigrams.append(bigram)
+
+        return tokens + bigrams
+
+
+    ########################################################
     # BUILD INDEX
     ########################################################
 
@@ -73,7 +127,20 @@ class ImprovedInformationRetrieval():
             for sentence in doc:
                 tokens.extend(sentence)
 
+            ################################################
+            # BIGRAM MODELS
+            ################################################
+
+            if self.method in [
+                "bigram",
+                "hybrid_bigram"
+            ]:
+
+                tokens = self.add_bigrams(tokens)
+
             flattened_docs.append(tokens)
+
+        self.flattened_docs = flattened_docs
 
         ####################################################
         # VOCAB
@@ -87,7 +154,7 @@ class ImprovedInformationRetrieval():
         self.vocab = sorted(list(vocab))
 
         ####################################################
-        # DF
+        # DOCUMENT FREQUENCY
         ####################################################
 
         df = {}
@@ -111,9 +178,23 @@ class ImprovedInformationRetrieval():
 
         for term in self.vocab:
 
-            self.idf[term] = math.log(
-                N / (df[term] + 1)
-            )
+            ################################################
+            # SMART TF-IDF
+            ################################################
+
+            if self.method == "smart":
+
+                self.idf[term] = (
+                    math.log(
+                        (N + 1) / (df[term] + 1)
+                    ) + 1
+                )
+
+            else:
+
+                self.idf[term] = math.log(
+                    N / (df[term] + 1)
+                )
 
         ####################################################
         # TF-IDF DOCUMENT MATRIX
@@ -131,31 +212,45 @@ class ImprovedInformationRetrieval():
 
             for j, term in enumerate(self.vocab):
 
-                tf_value = (
-                    tf[term] / total_terms
-                    if total_terms > 0
-                    else 0
-                )
+                ################################################
+                # SMART TF
+                ################################################
 
-                vector[j] = tf_value * self.idf[term]
+                if self.method == "smart":
+
+                    if tf[term] > 0:
+                        tf_value = (
+                            1 + math.log(tf[term])
+                        )
+                    else:
+                        tf_value = 0
+
+                else:
+
+                    tf_value = (
+                        tf[term] / total_terms
+                        if total_terms > 0
+                        else 0
+                    )
+
+                vector[j] = (
+                    tf_value *
+                    self.idf[term]
+                )
 
             doc_matrix.append(vector)
 
         doc_matrix = np.array(doc_matrix)
 
         ####################################################
-        # BASELINE
-        ####################################################
-
-        if self.method in ["baseline", "qe"]:
-
-            self.doc_vectors = doc_matrix
-
-        ####################################################
         # LSA / HYBRID
         ####################################################
 
-        elif self.method in ["lsa", "hybrid"]:
+        if self.method in [
+            "lsa",
+            "hybrid",
+            "hybrid_bigram"
+        ]:
 
             svd = TruncatedSVD(
                 n_components=self.n_components,
@@ -169,9 +264,15 @@ class ImprovedInformationRetrieval():
                 normalizer
             )
 
-            self.doc_vectors = self.lsa_pipeline.fit_transform(
-                doc_matrix
+            self.doc_vectors = (
+                self.lsa_pipeline.fit_transform(
+                    doc_matrix
+                )
             )
+
+        else:
+
+            self.doc_vectors = doc_matrix
 
 
     ########################################################
@@ -194,12 +295,42 @@ class ImprovedInformationRetrieval():
                 query_tokens.extend(sentence)
 
             ################################################
+            # SPELL CORRECTION
+            ################################################
+
+            if self.method in [
+                "spell",
+                "bm25_spell"
+            ]:
+
+                query_tokens = self.correct_query(
+                    query_tokens
+                )
+
+            ################################################
             # QUERY EXPANSION
             ################################################
 
-            if self.method in ["qe", "hybrid"]:
+            if self.method in [
+                "qe",
+                "hybrid",
+                "hybrid_bigram"
+            ]:
 
                 query_tokens = self.expand_query(
+                    query_tokens
+                )
+
+            ################################################
+            # BIGRAM QUERY
+            ################################################
+
+            if self.method in [
+                "bigram",
+                "hybrid_bigram"
+            ]:
+
+                query_tokens = self.add_bigrams(
                     query_tokens
                 )
 
@@ -221,20 +352,41 @@ class ImprovedInformationRetrieval():
                     else 0
                 )
 
-                query_vector[i] = (
-                    tf_value *
-                    self.idf.get(term, 0)
-                )
+                ################################################
+                # BOOSTED QUERY
+                ################################################
+
+                if self.method == "boosted":
+
+                    query_vector[i] = (
+                        tf_value *
+                        (
+                            self.idf.get(term, 0) ** 2
+                        )
+                    )
+
+                else:
+
+                    query_vector[i] = (
+                        tf_value *
+                        self.idf.get(term, 0)
+                    )
 
             ################################################
             # LSA PROJECTION
             ################################################
 
-            if self.method in ["lsa", "hybrid"]:
+            if self.method in [
+                "lsa",
+                "hybrid",
+                "hybrid_bigram"
+            ]:
 
-                query_vector = self.lsa_pipeline.transform(
-                    [query_vector]
-                )[0]
+                query_vector = (
+                    self.lsa_pipeline.transform(
+                        [query_vector]
+                    )[0]
+                )
 
             ################################################
             # COSINE SIMILARITY
@@ -258,8 +410,11 @@ class ImprovedInformationRetrieval():
 
                 if denominator == 0:
                     similarity = 0
+
                 else:
-                    similarity = numerator / denominator
+                    similarity = (
+                        numerator / denominator
+                    )
 
                 scores.append(
                     (docID, similarity)
@@ -276,7 +431,8 @@ class ImprovedInformationRetrieval():
             )
 
             ranked_docIDs = [
-                docID for docID, score in scores
+                docID
+                for docID, score in scores
             ]
 
             doc_IDs_ordered.append(
