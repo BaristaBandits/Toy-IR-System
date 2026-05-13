@@ -11,9 +11,9 @@ The system supports:
 - TF-IDF Vector Space Retrieval
 - Retrieval Evaluation Metrics
 - Adversarial Testing
-- Data-Driven Stopword Generation
 - Advanced Retrieval Improvements:
   - Latent Semantic Analysis (LSA)
+  - Generate data driven stop words
   - Query Expansion (QE)
   - Hybrid Retrieval
   - Smart TF-IDF
@@ -29,8 +29,8 @@ The system supports:
 ```text
 .
 ├── main.py
+├── main_improvements.py
 ├── improvements.py
-├── advanced_improvements.py
 ├── informationRetrieval.py
 ├── evaluation.py
 ├── sentenceSegmentation.py
@@ -87,7 +87,7 @@ Evaluation
 
 ---
 
-# 1. `main.py`
+### 1. `main_improvements.py`
 
 Main driver file of the project.
 
@@ -95,7 +95,7 @@ This file was extended to evaluate both the baseline retrieval model and all imp
 
 ---
 
-## Responsibilities
+#### Responsibilities
 
 - Loads Cranfield dataset
 - Preprocesses documents and queries
@@ -107,7 +107,7 @@ This file was extended to evaluate both the baseline retrieval model and all imp
 
 ---
 
-## Retrieval Models Evaluated
+#### Retrieval Models Evaluated
 
 The following systems are automatically evaluated:
 
@@ -123,21 +123,21 @@ The following systems are automatically evaluated:
 
 ---
 
-## Run
+#### Run
 
 ```bash
-python main.py
+python main_improvements.py
 ```
 
 ---
 
-# 2. `informationRetrieval.py`
+### 2. `informationRetrieval.py`
 
 Implements the baseline TF-IDF Vector Space Model.
 
 ---
 
-## Responsibilities
+#### Responsibilities
 
 - Builds vocabulary
 - Computes:
@@ -149,7 +149,7 @@ Implements the baseline TF-IDF Vector Space Model.
 
 ---
 
-## Retrieval Model
+#### Retrieval Model
 
 ```text
 TF-IDF + Cosine Similarity
@@ -157,21 +157,21 @@ TF-IDF + Cosine Similarity
 
 ---
 
-# 3. `improvements.py`
+### 3. `improvements.py`
 
 Implements semantic retrieval improvements.
 
 ---
 
-## Methods Implemented
+#### Methods Implemented
 
 ---
 
-## A. Latent Semantic Analysis (LSA)
+#### A. Latent Semantic Analysis (LSA)
 
 Uses Singular Value Decomposition (SVD) to project documents into a latent semantic space.
 
-### Purpose
+##### Purpose
 
 - Capture semantic similarity
 - Reduce sparsity
@@ -179,7 +179,7 @@ Uses Singular Value Decomposition (SVD) to project documents into a latent seman
 
 ---
 
-## B. Query Expansion (QE)
+#### B. Query Expansion (QE)
 
 Expands queries using WordNet synonyms.
 
@@ -189,14 +189,14 @@ Expands queries using WordNet synonyms.
 "heat" → ["thermal", "temperature"]
 ```
 
-### Purpose
+##### Purpose
 
 - Improve recall
 - Reduce vocabulary mismatch
 
 ---
 
-## C. Hybrid Retrieval
+#### C. Hybrid Retrieval
 
 Combines:
 
@@ -204,82 +204,82 @@ Combines:
 - LSA
 - Query Expansion
 
-### Purpose
+##### Purpose
 
 - Balance semantic retrieval and lexical precision
 
 ---
 
-# 4. `advanced_improvements.py`
+### 4. `advanced_improvements.py`
 
 Implements additional retrieval improvements beyond the standard semantic methods.
 
 ---
 
-## Methods Implemented
+#### Methods Implemented
 
 ---
 
-## A. Smart TF-IDF
+#### A. Smart TF-IDF
 
 Uses:
 
 - Log-scaled TF
 - Smoothed IDF
 
-### Formula
+##### Formula
 
 ```text
 tf = 1 + log(tf)
 idf = log((N+1)/(df+1)) + 1
 ```
 
-### Purpose
+##### Purpose
 
 - Improve ranking quality
 - Reduce impact of very frequent terms
 
 ---
 
-## B. Boosted Query TF-IDF
+#### B. Boosted Query TF-IDF
 
 Boosts rare query terms using squared IDF weighting.
 
-### Purpose
+##### Purpose
 
 - Increase importance of informative query terms
 - Improve retrieval specificity
 
 ---
 
-## C. Bigram Retrieval
+#### C. Bigram Retrieval
 
 Adds phrase-level indexing using bigrams.
 
-### Example
+##### Example
 
 ```text
 boundary layer → boundary_layer
 ```
 
-### Purpose
+##### Purpose
 
 - Improve phrase-aware retrieval
 - Capture contextual information
 
 ---
 
-## D. Spell Correction Retrieval
+#### D. Spell Correction Retrieval
 
 Performs lightweight spelling correction before ranking.
 
-### Purpose
+##### Purpose
 
 - Improve robustness to misspelled queries
 
 ---
 
-## E. Hybrid Bigram Retrieval
+#### E. Hybrid Bigram Retrieval
 
 Combines:
 
@@ -287,19 +287,19 @@ Combines:
 - Semantic retrieval
 - Query expansion
 
-### Purpose
+##### Purpose
 
 - Jointly model semantic and phrase-level information
 
 ---
 
-# 5. `sentenceSegmentation.py`
+### 5. `sentenceSegmentation.py`
 
 Implements sentence segmentation.
 
 ---
 
-## Methods
+#### Methods
 
 - Naive regex splitting
 - NLTK Punkt tokenizer
@@ -307,7 +307,7 @@ Implements sentence segmentation.
 
 ---
 
-## Example
+#### Example
 
 ```python
 segmenter.punkt(text)
@@ -315,13 +315,13 @@ segmenter.punkt(text)
 
 ---
 
-# 6. `tokenization.py`
+### 6. `tokenization.py`
 
 Implements tokenization.
 
 ---
 
-## Methods
+#### Methods
 
 - Naive regex tokenizer
 - Penn Treebank tokenizer
@@ -329,20 +329,20 @@ Implements tokenization.
 
 ---
 
-# 7. `inflectionReduction.py`
+### 7. `inflectionReduction.py`
 
 Implements inflection reduction.
 
 ---
 
-## Methods
+#### Methods
 
 - Porter Stemmer
 - WordNet Lemmatizer
 
 ---
 
-## Default
+#### Default
 
 ```python
 WordNet Lemmatizer
@@ -350,11 +350,11 @@ WordNet Lemmatizer
 
 ---
 
-## Purpose
+#### Purpose
 
 Reduce words to canonical forms.
 
-### Example
+##### Example
 
 ```text
 running → run
@@ -363,13 +363,13 @@ cars → car
 
 ---
 
-# 8. `stopwordRemoval.py`
+### 8. `stopwordRemoval.py`
 
 Removes stopwords using the NLTK stopword list.
 
 ---
 
-## Example Removed Words
+#### Example Removed Words
 
 ```text
 the, is, are, and, for
@@ -377,19 +377,19 @@ the, is, are, and, for
 
 ---
 
-## Purpose
+#### Purpose
 
 Remove non-informative terms.
 
 ---
 
-# 9. `evaluation.py`
+### 9. `evaluation.py`
 
 Implements retrieval evaluation metrics.
 
 ---
 
-## Metrics Implemented
+#### Metrics Implemented
 
 - Precision@k
 - Recall@k
@@ -400,19 +400,19 @@ Implements retrieval evaluation metrics.
 
 ---
 
-## Purpose
+#### Purpose
 
 Quantitatively evaluate retrieval quality.
 
 ---
 
-# 10. `tfidf_stopwords.py`
+### 10. `tfidf_stopwords.py`
 
 Creates data-driven stopwords from the Cranfield corpus.
 
 ---
 
-## Method
+#### Method
 
 A word is considered a stopword if it appears in more than a threshold percentage of documents.
 
@@ -424,13 +424,13 @@ threshold = 0.3
 
 ---
 
-## Purpose
+#### Purpose
 
 Identify domain-specific frequent words.
 
 ---
 
-## Run
+#### Run
 
 ```bash
 python tfidf_stopwords.py
@@ -438,13 +438,13 @@ python tfidf_stopwords.py
 
 ---
 
-# 11. `test_adversarial.py`
+### 11. `test_adversarial.py`
 
 Tests robustness of sentence segmentation methods.
 
 ---
 
-## Test Cases
+#### Test Cases
 
 - Abbreviations
 - Decimal numbers
@@ -455,13 +455,13 @@ Tests robustness of sentence segmentation methods.
 
 ---
 
-## Purpose
+#### Purpose
 
 Compare segmentation robustness across methods.
 
 ---
 
-## Run
+#### Run
 
 ```bash
 python test_adversarial.py
@@ -469,13 +469,13 @@ python test_adversarial.py
 
 ---
 
-# 12. `util.py`
+### 12. `util.py`
 
 Contains utility imports and NLTK downloads.
 
 ---
 
-## Downloads
+#### Downloads
 
 - punkt
 - wordnet
@@ -484,11 +484,11 @@ Contains utility imports and NLTK downloads.
 
 ---
 
-# Installation
+### Installation
 
 ---
 
-## Step 1 — Clone Repository
+#### Step 1 — Clone Repository
 
 ```bash
 git clone https://github.com/BaristaBandits/Toy-IR-System.git
@@ -497,7 +497,7 @@ cd Toy-IR-System
 
 ---
 
-## Step 2 — Install Dependencies
+#### Step 2 — Install Dependencies
 
 ```bash
 pip install numpy nltk matplotlib spacy scikit-learn autocorrect
@@ -505,7 +505,7 @@ pip install numpy nltk matplotlib spacy scikit-learn autocorrect
 
 ---
 
-## Step 3 — Download spaCy Model
+#### Step 3 — Download spaCy Model
 
 ```bash
 python -m spacy download en_core_web_sm
@@ -513,14 +513,14 @@ python -m spacy download en_core_web_sm
 
 ---
 
-# Running the Project
+### Running the Project
 
 ---
 
-# Run Full Evaluation
+### Run Full Evaluation
 
 ```bash
-python main.py
+python main_improvements.py
 ```
 
 This automatically evaluates:
@@ -537,7 +537,7 @@ This automatically evaluates:
 
 ---
 
-# Run Adversarial Sentence Segmentation Tests
+### Run Adversarial Sentence Segmentation Tests
 
 ```bash
 python test_adversarial.py
@@ -545,7 +545,7 @@ python test_adversarial.py
 
 ---
 
-# Generate Data-Driven Stopwords
+### Generate Data-Driven Stopwords
 
 ```bash
 python tfidf_stopwords.py
@@ -553,7 +553,7 @@ python tfidf_stopwords.py
 
 ---
 
-# Example Output
+### Example Output
 
 ```text
 ======================================
@@ -572,7 +572,7 @@ MRR@10       : 0.7258
 
 ---
 
-# Output Files
+### Output Files
 
 The system generates:
 
@@ -594,7 +594,7 @@ output/
 
 ---
 
-# Experimental Findings
+### Experimental Findings
 
 Key observations from experiments:
 
@@ -607,7 +607,7 @@ Key observations from experiments:
 
 ---
 
-# Authors
+### Authors
 
 - Swathi Shree N (EE22B149)
 - Vignesh Gunda (EE22B105)
@@ -617,7 +617,7 @@ Key observations from experiments:
 
 ---
 
-# Course Information
+### Course Information
 
 CS6370 — Natural Language Processing  
 Department of Computer Science and Engineering  
