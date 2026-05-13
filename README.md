@@ -31,6 +31,7 @@ The system supports:
 ├── tfidf_stopwords.py
 ├── test_adversarial.py
 ├── util.py
+├── main_improvements.py
 ├── cranfield/
 │   ├── cran_docs.json
 │   ├── cran_queries.json
@@ -77,8 +78,9 @@ Evaluation
 # File Descriptions
 
 ---
+We modified the main.py a bit to evaluate our improvised model which will be used in part 5
 
-## 1. `main.py`
+## 1. `main_improvements.py`
 
 Main driver file of the project.
 
