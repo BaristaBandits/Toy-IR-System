@@ -358,7 +358,7 @@ python -m spacy download en_core_web_sm
 ## Run Baseline + Improvements
 
 ```bash
-python main.py
+python main_improvements.py
 ```
 
 This automatically runs:
@@ -433,17 +433,6 @@ nDCG: ...
 MRR : ...
 ```
 
----
-
-# Expected Improvements
-
-| Method | Expected Effect |
-|---|---|
-| LSA | Better semantic matching |
-| Query Expansion | Better recall |
-| Hybrid | Best overall retrieval |
-
----
 
 # Observed Limitations of TF-IDF
 
