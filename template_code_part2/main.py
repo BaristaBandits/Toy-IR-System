@@ -29,7 +29,7 @@ class SearchEngine:
     def __init__(self, args):
         self.args = args
 
-        # ✅ Create output folder if not exists
+        # output path error fix
         if not os.path.exists(self.args.out_folder):
             os.makedirs(self.args.out_folder)
 
