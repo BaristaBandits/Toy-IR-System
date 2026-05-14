@@ -7,9 +7,6 @@ import math
 class Evaluation():
 
 	def getRelevantDocs(self, query_id, qrels):
-		"""
-		Get relevant documents for a query
-		"""
 
 		relevant_docs = []
 
@@ -47,14 +44,7 @@ class Evaluation():
 		for i, query_id in enumerate(query_ids):
 
 			true_doc_IDs = self.getRelevantDocs(query_id, qrels)
-
-			precision = self.queryPrecision(
-				doc_IDs_ordered[i],
-				query_id,
-				true_doc_IDs,
-				k
-			)
-
+			precision = self.queryPrecision(doc_IDs_ordered[i], query_id, true_doc_IDs, k)
 			precisions.append(precision)
 
 		meanPrecision = sum(precisions) / len(precisions)
@@ -88,14 +78,7 @@ class Evaluation():
 		for i, query_id in enumerate(query_ids):
 
 			true_doc_IDs = self.getRelevantDocs(query_id, qrels)
-
-			recall = self.queryRecall(
-				doc_IDs_ordered[i],
-				query_id,
-				true_doc_IDs,
-				k
-			)
-
+			recall = self.queryRecall(doc_IDs_ordered[i], query_id, true_doc_IDs, k)
 			recalls.append(recall)
 
 		meanRecall = sum(recalls) / len(recalls)
@@ -105,19 +88,8 @@ class Evaluation():
 
 	def queryFscore(self, query_doc_IDs_ordered, query_id, true_doc_IDs, k):
 
-		precision = self.queryPrecision(
-			query_doc_IDs_ordered,
-			query_id,
-			true_doc_IDs,
-			k
-		)
-
-		recall = self.queryRecall(
-			query_doc_IDs_ordered,
-			query_id,
-			true_doc_IDs,
-			k
-		)
+		precision = self.queryPrecision(query_doc_IDs_ordered, query_id, true_doc_IDs, k)
+		recall = self.queryRecall(query_doc_IDs_ordered, query_id, true_doc_IDs, k)
 
 		beta = 0.5
 
@@ -140,14 +112,7 @@ class Evaluation():
 		for i, query_id in enumerate(query_ids):
 
 			true_doc_IDs = self.getRelevantDocs(query_id, qrels)
-
-			fscore = self.queryFscore(
-				doc_IDs_ordered[i],
-				query_id,
-				true_doc_IDs,
-				k
-			)
-
+			fscore = self.queryFscore(doc_IDs_ordered[i], query_id, true_doc_IDs, k)
 			fscores.append(fscore)
 
 		meanFscore = sum(fscores) / len(fscores)
@@ -194,14 +159,7 @@ class Evaluation():
 		for i, query_id in enumerate(query_ids):
 
 			true_doc_IDs = self.getRelevantDocs(query_id, qrels)
-
-			nDCG = self.queryNDCG(
-				doc_IDs_ordered[i],
-				query_id,
-				true_doc_IDs,
-				k
-			)
-
+			nDCG = self.queryNDCG(doc_IDs_ordered[i], query_id, true_doc_IDs, k)
 			nDCGs.append(nDCG)
 
 		meanNDCG = sum(nDCGs) / len(nDCGs)
@@ -243,13 +201,7 @@ class Evaluation():
 
 			true_doc_IDs = self.getRelevantDocs(query_id, q_rels)
 
-			AP = self.queryAveragePrecision(
-				doc_IDs_ordered[i],
-				query_id,
-				true_doc_IDs,
-				k
-			)
-
+			AP = self.queryAveragePrecision(doc_IDs_ordered[i], query_id, true_doc_IDs,k)
 			APs.append(AP)
 
 		meanAveragePrecision = sum(APs) / len(APs)
@@ -262,7 +214,6 @@ class Evaluation():
 		retrieved_docs = query_doc_IDs_ordered[:k]
 
 		for i, docID in enumerate(retrieved_docs):
-
 			if docID in true_doc_IDs:
 				return 1 / (i + 1)
 
@@ -276,14 +227,7 @@ class Evaluation():
 		for i, query_id in enumerate(query_ids):
 
 			true_doc_IDs = self.getRelevantDocs(query_id, qrels)
-
-			RR = self.queryReciprocalRank(
-				doc_IDs_ordered[i],
-				query_id,
-				true_doc_IDs,
-				k
-			)
-
+			RR = self.queryReciprocalRank(doc_IDs_ordered[i], query_id, true_doc_IDs, k)
 			RRs.append(RR)
 
 		meanReciprocalRank = sum(RRs) / len(RRs)
