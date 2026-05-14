@@ -230,174 +230,79 @@ class SearchEngine:
         plt.close()
 
 
-    # evaluate all retrieval models
+ 
+         # evaluate all retrieval models
     def evaluateDataset(self):
-
-        # load queries
-        queries_json = json.load(
-            open(
-                os.path.join(
-                    args.dataset,
-                    "cran_queries.json"
-                ),
-                'r'
-            )
-        )[:]
-
-        query_ids = [
-            item["query number"]
-            for item in queries_json
-        ]
-
-        queries = [
-            item["query"]
-            for item in queries_json
-        ]
-
-        processedQueries = self.preprocessQueries(queries)
-
-        # load documents
-        docs_json = json.load(
-            open(
-                os.path.join(
-                    args.dataset,
-                    "cran_docs.json"
-                ),
-                'r'
-            )
-        )[:]
-
-        doc_ids = [
-            item["id"]
-            for item in docs_json
-        ]
-
-        docs = [
-            item["body"]
-            for item in docs_json
-        ]
-
-        processedDocs = self.preprocessDocs(docs)
-
-        # load qrels
-        qrels = json.load(
-            open(
-                os.path.join(
-                    args.dataset,
-                    "cran_qrels.json"
-                ),
-                'r'
-            )
-        )[:]
-
-        # retrieval methods
-        methods = [
-
-            ("baseline", InformationRetrieval()),
-
-            (
-                "lsa",
-                ImprovedInformationRetrieval(
-                    method="lsa",
-                    n_components=100
+        
+            # load queries
+            queries_json = json.load(open(os.path.join(args.dataset, "cran_queries.json"), 'r'))[:]
+        
+            query_ids = [
+                item["query number"]
+                for item in queries_json
+            ]
+        
+            queries = [
+                item["query"]
+                for item in queries_json
+            ]
+        
+            processedQueries = self.preprocessQueries(queries)
+        
+            # load documents
+            docs_json = json.load(open(os.path.join(args.dataset, "cran_docs.json"), 'r'))[:]
+        
+            doc_ids = [
+                item["id"]
+                for item in docs_json
+            ]
+        
+            docs = [
+                item["body"]
+                for item in docs_json
+            ]
+        
+            processedDocs = self.preprocessDocs(docs)
+        
+            # load qrels
+            qrels = json.load(open(os.path.join(args.dataset, "cran_qrels.json"), 'r'))[:]
+        
+            # retrieval methods
+            methods = [
+        
+                ("baseline", InformationRetrieval()),
+                ("lsa", ImprovedInformationRetrieval(method="lsa", n_components=100)),
+                ("query_expansion", ImprovedInformationRetrieval(method="qe")),
+                ("hybrid", ImprovedInformationRetrieval(method="hybrid", n_components=100)),
+                ("smart_tfidf", ImprovedInformationRetrieval(method="smart")),
+                ("boosted_query", ImprovedInformationRetrieval(method="boosted")),
+                ("bigram", ImprovedInformationRetrieval(method="bigram")),
+                ("spell_correction", ImprovedInformationRetrieval(method="spell")),
+                ("hybrid_bigram", ImprovedInformationRetrieval(method="hybrid_bigram", n_components=100))
+        
+            ]
+        
+            # run all methods
+            for method_name, retriever in methods:
+        
+                self.run_method(
+                    method_name,
+                    retriever,
+                    processedDocs,
+                    processedQueries,
+                    doc_ids,
+                    query_ids,
+                    qrels
                 )
-            ),
-
-            (
-                "query_expansion",
-                ImprovedInformationRetrieval(
-                    method="qe"
-                )
-            ),
-
-            (
-                "hybrid",
-                ImprovedInformationRetrieval(
-                    method="hybrid",
-                    n_components=100
-                )
-            ),
-
-            (
-                "smart_tfidf",
-                ImprovedInformationRetrieval(
-                    method="smart"
-                )
-            ),
-
-            (
-                "boosted_query",
-                ImprovedInformationRetrieval(
-                    method="boosted"
-                )
-            ),
-
-            (
-                "bigram",
-                ImprovedInformationRetrieval(
-                    method="bigram"
-                )
-            ),
-
-            (
-                "spell_correction",
-                ImprovedInformationRetrieval(
-                    method="spell"
-                )
-            ),
-
-            (
-                "hybrid_bigram",
-                ImprovedInformationRetrieval(
-                    method="hybrid_bigram",
-                    n_components=100
-                )
-            )
-
-        ]
-
-        # run all methods
-        for method_name, retriever in methods:
-
-            self.run_method(
-                method_name,
-                retriever,
-                processedDocs,
-                processedQueries,
-                doc_ids,
-                query_ids,
-                qrels
-            )
-
-
+        
+        
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(
-        description='main.py'
-    )
-
-    parser.add_argument(
-        '-dataset',
-        default="cranfield/"
-    )
-
-    parser.add_argument(
-        '-out_folder',
-        default="output/"
-    )
-
-    parser.add_argument(
-        '-segmenter',
-        default="punkt"
-    )
-
-    parser.add_argument(
-        '-tokenizer',
-        default="ptb"
-    )
-
-    args = parser.parse_args()
-
-    searchEngine = SearchEngine(args)
-
-    searchEngine.evaluateDataset()
+        
+            parser = argparse.ArgumentParser(description='main.py') 
+            parser.add_argument('-dataset', default="cranfield/") 
+            parser.add_argument('-out_folder', default="output/")  
+            parser.add_argument('-segmenter', default="punkt") 
+            parser.add_argument('-tokenizer', default="ptb")   
+            args = parser.parse_args()
+            searchEngine = SearchEngine(args)
+            searchEngine.evaluateDataset()
