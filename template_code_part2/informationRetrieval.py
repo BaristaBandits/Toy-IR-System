@@ -17,11 +17,6 @@ class InformationRetrieval():
 
 
 	def buildIndex(self, docs, docIDs):
-		"""
-		Builds the document index in terms of the document
-		IDs and stores it in the 'index' class variable
-		"""
-
 		self.docIDs = docIDs
 
 		# Flatten documents
@@ -66,66 +61,39 @@ class InformationRetrieval():
 		self.doc_vectors = {}
 
 		for i, doc in enumerate(flattened_docs):
-
 			tf = Counter(doc)
-
 			vector = np.zeros(len(self.vocab))
-
 			total_terms = len(doc)
-
 			for j, term in enumerate(self.vocab):
-
 				tf_value = tf[term] / total_terms if total_terms > 0 else 0
-
 				vector[j] = tf_value * self.idf[term]
-
 			self.doc_vectors[docIDs[i]] = vector
-
 		self.index = self.doc_vectors
 
 
 	def rank(self, queries):
-		"""
-		Rank the documents according to relevance for each query
-		"""
+	
 
 		doc_IDs_ordered = []
 
 		for query in queries:
-
-			# Flatten query
-			query_tokens = []
-
+			query_tokens = [] #flatten query
 			for sentence in query:
 				query_tokens.extend(sentence)
-
 			# Compute query TF
 			tf_query = Counter(query_tokens)
-
 			query_vector = np.zeros(len(self.vocab))
-
 			total_terms = len(query_tokens)
-
 			for i, term in enumerate(self.vocab):
-
 				tf_value = tf_query[term] / total_terms if total_terms > 0 else 0
-
 				query_vector[i] = tf_value * self.idf.get(term, 0)
 
 			# Compute cosine similarities
 			scores = []
-
 			for docID in self.docIDs:
-
 				doc_vector = self.doc_vectors[docID]
-
 				numerator = np.dot(query_vector, doc_vector)
-
-				denominator = (
-					np.linalg.norm(query_vector)
-					* np.linalg.norm(doc_vector)
-				)
-
+				denominator = np.linalg.norm(query_vector) * np.linalg.norm(doc_vector)
 				if denominator == 0:
 					similarity = 0
 				else:
@@ -135,9 +103,7 @@ class InformationRetrieval():
 
 			# Sort by similarity descending
 			scores = sorted(scores, key=lambda x: x[1], reverse=True)
-
 			ranked_docIDs = [docID for docID, score in scores]
-
 			doc_IDs_ordered.append(ranked_docIDs)
 
 		return doc_IDs_ordered
